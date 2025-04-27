@@ -1,0 +1,26 @@
+# requirements.txt
+
+# Core
+#numpy
+pandas
+
+# ML
+scikit-learn==1.4.1.post1
+faiss-cpu
+matplotlib
+pillow
+
+# Vision (only if you're using them)
+torch==2.0.1
+torchvision==0.15.2
+torchaudio==2.0.2
+
+# Claude 3.5 Haiku
+anthropic
+python-dotenv
+
+# Image handling
+ipykernel
+
+# Optional
+requests
