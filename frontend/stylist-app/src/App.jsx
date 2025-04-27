@@ -80,12 +80,14 @@ Whether you're dressing for a date, a run, or a relaxed weekend hang — I’ve 
 
   function getImageUrl(category, filename) {
     const folderMap = { shirt: "shirts", "t-shirt": "t-shirts", pants: "pants", shorts: "shorts" };
-    return `/clothes/${selectedUser}/${folderMap[category] || "misc"}/${filename}`;
+    return `/CASUAL.AI/clothes/${selectedUser}/${folderMap[category] || "misc"}/${filename}`;
   }
 
   function getBackgroundImage() {
-    if (!selectedUser) return "/assets/background_image.png";
-    return selectedUser === "parsa" ? "/assets/male_background.png" : "/assets/female_background.png";
+    if (!selectedUser) return "/CASUAL.AI/assets/background_image.png";
+    return selectedUser === "parsa"
+      ? "/CASUAL.AI/assets/male_background.png"
+      : "/CASUAL.AI/assets/female_background.png";
   }
 
   function toggleLockTop(index) {
