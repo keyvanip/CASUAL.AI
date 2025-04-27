@@ -37,7 +37,7 @@ Whether you're dressing for a date, a run, or a relaxed weekend hang — I’ve 
   async function regenerateOutfits(prompt = lastPrompt || "Give me an outfit") {
     if (!selectedUser) return;
     try {
-      const response = await fetch("http://127.0.0.1:8000/generate-outfit", {
+      const response = await fetch("https://stylist-backend-r6hg.onrender.com/generate-outfit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
