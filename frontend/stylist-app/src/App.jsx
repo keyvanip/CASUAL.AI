@@ -3,15 +3,14 @@ import { RotateCcw } from "lucide-react";
 
 export default function App() {
   const [selectedUser, setSelectedUser] = useState("");
-  const [messages, setMessages] = useState([
-    { sender: "assistant", text: getHomeIntroMessage() },
-  ]);
+  const [messages, setMessages] = useState([{ sender: "assistant", text: getHomeIntroMessage() }]);
   const [input, setInput] = useState("");
   const [outfits, setOutfits] = useState([]);
   const [outfitDescriptions, setOutfitDescriptions] = useState([]);
   const [lockedTop, setLockedTop] = useState(null);
   const [lockedBottom, setLockedBottom] = useState(null);
   const [lastPrompt, setLastPrompt] = useState("");
+  const [loading, setLoading] = useState(false);
   const chatEndRef = useRef(null);
 
   useEffect(() => {
@@ -25,18 +24,17 @@ export default function App() {
 
 This app helps you effortlessly create stylish outfits tailored to your wardrobe, the weather, and your plans for the day.
 
-To get started, select a wardrobe from the dropdown menu above. Once you do, I’ll help you choose the perfect outfit based on your style, occasion, and mood.
-
-Whether you're dressing for a date, a run, or a relaxed weekend hang — I’ve got your back.`;
+To get started, select a wardrobe from the dropdown menu above. Once you do, I’ll help you choose the perfect outfit based on your style, occasion, and mood.`;
   }
 
   function initialGreeting(name) {
-    return `Nice to have you back, ${name.charAt(0).toUpperCase() + name.slice(1)}! \n\nI'm here to help you find your perfect outfit. Got a plan for the day?\n\nLet me know the occasion or style, and I’ll pull something great from your wardrobe!`;
+    return `Nice to have you back, ${name.charAt(0).toUpperCase() + name.slice(1)}! \n\nI'm here to help you find your perfect outfit. Got a plan for the day?`;
   }
 
   async function regenerateOutfits(prompt = lastPrompt || "Give me an outfit") {
     if (!selectedUser) return;
     try {
+      setLoading(true);
       const response = await fetch("https://stylist-backend-r6hg.onrender.com/generate-outfit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -52,27 +50,23 @@ Whether you're dressing for a date, a run, or a relaxed weekend hang — I’ve 
       const data = await response.json();
       setMessages((prev) => [
         ...prev,
-        {
-          sender: "assistant",
-          text: `🌤️ Temperature detected in ${data.location} on ${data.forecastDate}: ${data.temperature}\n🎯 Occasion detected: ${data.occasion}`,
-        },
-        {
-          sender: "assistant",
-          text: data.message || "Here are your outfit options!",
-        },
+        { sender: "assistant", text: `🌤️ Temperature detected in ${data.location} on ${data.forecastDate}: ${data.temperature}\n🎯 Occasion detected: ${data.occasion}` },
+        { sender: "assistant", text: data.message || "Here are your outfit options!" },
       ]);
       setOutfits(data.outfits || []);
       setOutfitDescriptions(data.outfitDescriptions || []);
     } catch (err) {
       console.error("Error fetching outfit:", err);
       setMessages((prev) => [...prev, { sender: "assistant", text: "Sorry, something went wrong." }]);
+    } finally {
+      setLoading(false);
     }
   }
 
   function handleSend(e) {
     e.preventDefault();
     if (!input.trim() || !selectedUser) return;
-    setMessages((prev) => [...prev, { sender: "user", text: input }]);
+    setMessages((prev) => [...prev, { sender: "user", text: input }, { sender: "assistant", text: "Thinking... 🤔" }]);
     setLastPrompt(input);
     regenerateOutfits(input);
     setInput("");
@@ -85,9 +79,7 @@ Whether you're dressing for a date, a run, or a relaxed weekend hang — I’ve 
 
   function getBackgroundImage() {
     if (!selectedUser) return "/CASUAL.AI/assets/background_image.png";
-    return selectedUser === "parsa"
-      ? "/CASUAL.AI/assets/male_background.png"
-      : "/CASUAL.AI/assets/female_background.png";
+    return selectedUser === "parsa" ? "/CASUAL.AI/assets/male_background.png" : "/CASUAL.AI/assets/female_background.png";
   }
 
   function toggleLockTop(index) {
@@ -148,6 +140,7 @@ Whether you're dressing for a date, a run, or a relaxed weekend hang — I’ve 
             {messages.map((msg, i) => (
               <div key={i} className={`mb-3 px-3 py-2 rounded-lg text-2xl whitespace-pre-wrap ${msg.sender === "assistant" ? "bg-[#faefe2] text-[#3b2d28]" : "bg-[#8b897e] text-white self-end"}`}>{msg.text}</div>
             ))}
+            {loading && <div className="px-3 py-2 rounded-lg text-2xl bg-[#faefe2] text-[#3b2d28] mb-3">Thinking... 🤔</div>}
             <div ref={chatEndRef} />
           </div>
           {selectedUser && (
