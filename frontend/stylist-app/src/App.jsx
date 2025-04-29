@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { RotateCcw } from "lucide-react";
+import { RotateCcw, Loader2 } from "lucide-react"; // <-- Add Loader2 spinning icon
 
 export default function App() {
   const [selectedUser, setSelectedUser] = useState("");
@@ -17,18 +17,18 @@ export default function App() {
     if (chatEndRef.current) {
       chatEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages]);
+  }, [messages, loading]); // also scroll when loading changes
 
   function getHomeIntroMessage() {
     return `Welcome to Casual.AI â€” your intelligent personal stylist.
 
 This app helps you effortlessly create stylish outfits tailored to your wardrobe, the weather, and your plans for the day.
 
-To get started, select a wardrobe from the dropdown menu above. Once you do, Iâ€™ll help you choose the perfect outfit based on your style, occasion, and mood.`;
+To get started, select a wardrobe from the dropdown menu above.`;
   }
 
   function initialGreeting(name) {
-    return `Nice to have you back, ${name.charAt(0).toUpperCase() + name.slice(1)}! \n\nI'm here to help you find your perfect outfit. Got a plan for the day?`;
+    return `Nice to have you back, ${name.charAt(0).toUpperCase() + name.slice(1)}! What's your plan for today?`;
   }
 
   async function regenerateOutfits(prompt = lastPrompt || "Give me an outfit") {
@@ -66,7 +66,7 @@ To get started, select a wardrobe from the dropdown menu above. Once you do, Iâ€
   function handleSend(e) {
     e.preventDefault();
     if (!input.trim() || !selectedUser) return;
-    setMessages((prev) => [...prev, { sender: "user", text: input }, { sender: "assistant", text: "Thinking... ðŸ¤”" }]);
+    setMessages((prev) => [...prev, { sender: "user", text: input }]);
     setLastPrompt(input);
     regenerateOutfits(input);
     setInput("");
@@ -79,7 +79,9 @@ To get started, select a wardrobe from the dropdown menu above. Once you do, Iâ€
 
   function getBackgroundImage() {
     if (!selectedUser) return "/CASUAL.AI/assets/background_image.png";
-    return selectedUser === "parsa" ? "/CASUAL.AI/assets/male_background.png" : "/CASUAL.AI/assets/female_background.png";
+    return selectedUser === "parsa"
+      ? "/CASUAL.AI/assets/male_background.png"
+      : "/CASUAL.AI/assets/female_background.png";
   }
 
   function toggleLockTop(index) {
@@ -140,7 +142,12 @@ To get started, select a wardrobe from the dropdown menu above. Once you do, Iâ€
             {messages.map((msg, i) => (
               <div key={i} className={`mb-3 px-3 py-2 rounded-lg text-2xl whitespace-pre-wrap ${msg.sender === "assistant" ? "bg-[#faefe2] text-[#3b2d28]" : "bg-[#8b897e] text-white self-end"}`}>{msg.text}</div>
             ))}
-            {loading && <div className="px-3 py-2 rounded-lg text-2xl bg-[#faefe2] text-[#3b2d28] mb-3">Thinking... ðŸ¤”</div>}
+            {loading && (
+              <div className="flex items-center gap-3 px-3 py-2 rounded-lg text-2xl bg-[#faefe2] text-[#3b2d28] mb-3">
+                <Loader2 className="animate-spin" size={24} />
+                Generating Outfit Matches...
+              </div>
+            )}
             <div ref={chatEndRef} />
           </div>
           {selectedUser && (
